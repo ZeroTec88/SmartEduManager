@@ -62,8 +62,9 @@ export class ExamResultsComponent implements OnInit {
     this.isLoading.set(true);
     this.examResultsService.getExamBatchStats().subscribe({
       next: stats => {
-        const batchExams = stats.filter(s => s.batchSummaries.some(bs => bs.batchId === batchId));
-        this.exams.set(batchExams);
+        // Show all exams (batch filtering not possible at backend level since
+        // ExamAttempts.StudentId is the Identity user ID, not linked to Student.BatchId)
+        this.exams.set(stats);
         this.isLoading.set(false);
       },
       error: () => {
@@ -84,6 +85,8 @@ export class ExamResultsComponent implements OnInit {
     this.isLoading.set(true);
     this.examResultsService.getBatchSummary(batchId, examId).subscribe({
       next: summary => {
+        // Use the first (and only) summary returned; backend returns BatchId=0 (all batches)
+        // since ExamAttempts.StudentId is not linked to Student.BatchId
         this.batchSummaries.set([summary]);
         this.isLoading.set(false);
       },

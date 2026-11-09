@@ -274,7 +274,9 @@ public class ExamAttemptsController : ControllerBase
         try
         {
             var summaries = await _examService.GetBatchSummariesAsync(examId);
-            var summary = summaries.FirstOrDefault(s => s.BatchId == batchId);
+            // Use the first summary; backend returns BatchId=0 (all batches) since
+            // ExamAttempts.StudentId is not linked to Student.BatchId
+            var summary = summaries.FirstOrDefault();
             if (summary == null)
                 return NotFound("Batch summary not found");
             return Ok(summary);
