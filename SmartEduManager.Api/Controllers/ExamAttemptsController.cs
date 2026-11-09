@@ -180,4 +180,110 @@ public class ExamAttemptsController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    [HttpGet("batch/{batchId}")]
+    [Authorize(Roles = "Admin,Instructor")]
+    public async Task<IActionResult> GetBatchResults(int batchId)
+    {
+        try
+        {
+            var results = await _examService.GetBatchResultsAsync(batchId);
+            return Ok(results);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting batch results");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+
+    [HttpGet("batch/{batchId}/exam/{examId}")]
+    [Authorize(Roles = "Admin,Instructor")]
+    public async Task<IActionResult> GetBatchResultsByExam(int batchId, int examId)
+    {
+        try
+        {
+            var results = await _examService.GetBatchResultsByExamAsync(batchId, examId);
+            return Ok(results);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting batch results by exam");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+
+    [HttpGet("exam/{examId}")]
+    [Authorize(Roles = "Admin,Instructor")]
+    public async Task<IActionResult> GetExamResults(int examId)
+    {
+        try
+        {
+            var results = await _examService.GetAllResultsAsync();
+            var examResults = results.Where(r => r.ExamId == examId).ToList();
+            return Ok(examResults);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting exam results");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+
+    [HttpGet("student/{studentId}")]
+    [Authorize(Roles = "Admin,Instructor")]
+    public async Task<IActionResult> GetStudentResults(string studentId)
+    {
+        try
+        {
+            var results = await _examService.GetStudentResultsByStudentIdAsync(studentId);
+            return Ok(results);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting student results");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+
+    [HttpGet("stats")]
+    [Authorize(Roles = "Admin,Instructor")]
+    public async Task<IActionResult> GetExamBatchStats()
+    {
+        try
+        {
+            var stats = await _examService.GetExamBatchStatsAsync();
+            return Ok(stats);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting exam batch stats");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+
+    [HttpGet("batch/{batchId}/summary/{examId}")]
+    [Authorize(Roles = "Admin,Instructor")]
+    public async Task<IActionResult> GetBatchSummary(int batchId, int examId)
+    {
+        try
+        {
+            var summaries = await _examService.GetBatchSummariesAsync(examId);
+            var summary = summaries.FirstOrDefault(s => s.BatchId == batchId);
+            if (summary == null)
+                return NotFound("Batch summary not found");
+            return Ok(summary);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting batch summary");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
 }

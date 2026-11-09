@@ -8,23 +8,30 @@ namespace SmartEduManager.Api.Services;
 
 public interface IExamService
 {
-    Task<ExamDto?> GetExamWithQuestionsAsync(int id);
-    Task<IEnumerable<ExamDto>> GetAllExamsAsync();
-    Task<IEnumerable<ExamDto>> GetStudentExamsAsync(string studentId);
-    Task<ExamDto> CreateExamAsync(CreateExamDto createDto);
-    Task<bool> UpdateExamAsync(int id, UpdateExamDto updateDto);
-    Task<bool> DeleteExamAsync(int id);
-    Task<bool> AddQuestionToExamAsync(int examId, int questionId);
-    Task<bool> RemoveQuestionFromExamAsync(int examId, int questionId);
-    Task<bool> ReorderExamQuestionsAsync(int examId, List<int> questionIdsInOrder);
-    Task<bool> RevertExamToDraftAsync(int examId);
-    Task<bool> ScheduleExamAsync(int id, ScheduleExamDto dto);
-    Task<bool> PublishExamAsync(int id);
-    Task<ExamAttemptDto?> StartExamAsync(int examId, string studentId);
-    Task<ExamResultDto?> SubmitExamAsync(int attemptId, string studentId, List<ExamAnswerSubmission> answers);
-    Task<IEnumerable<ExamResultDto>> GetStudentResultsAsync(string studentId);
-    Task<ExamResultDto?> GetResultAsync(int resultId, string studentId);
-}
+        Task<ExamDto?> GetExamWithQuestionsAsync(int id);
+        Task<IEnumerable<ExamDto>> GetAllExamsAsync();
+        Task<IEnumerable<ExamDto>> GetStudentExamsAsync(string studentId);
+        Task<ExamDto> CreateExamAsync(CreateExamDto createDto);
+        Task<bool> UpdateExamAsync(int id, UpdateExamDto updateDto);
+        Task<bool> DeleteExamAsync(int id);
+        Task<bool> AddQuestionToExamAsync(int examId, int questionId);
+        Task<bool> RemoveQuestionFromExamAsync(int examId, int questionId);
+        Task<bool> ReorderExamQuestionsAsync(int examId, List<int> questionIdsInOrder);
+        Task<bool> RevertExamToDraftAsync(int examId);
+        Task<bool> ScheduleExamAsync(int id, ScheduleExamDto dto);
+        Task<bool> PublishExamAsync(int id);
+        Task<ExamAttemptDto?> StartExamAsync(int examId, string studentId);
+        Task<ExamResultDto?> SubmitExamAsync(int attemptId, string studentId, List<ExamAnswerSubmission> answers);
+        Task<IEnumerable<ExamResultDto>> GetStudentResultsAsync(string studentId);
+        Task<ExamResultDto?> GetResultAsync(int resultId, string studentId);
+        Task<List<ExamResultDto>> GetAllResultsAsync();
+        Task<List<BatchExamResultDto>> GetBatchResultsAsync(int batchId);
+        Task<List<BatchExamResultDto>> GetBatchResultsByExamAsync(int batchId, int examId);
+        Task<List<BatchExamSummaryDto>> GetBatchSummariesAsync(int examId);
+        Task<List<ExamBatchStatsDto>> GetExamBatchStatsAsync();
+        Task<List<ExamResultDto>> GetStudentResultsByStudentIdAsync(string studentId);
+        Task<List<ExamResultDto>> GetStudentResultsByBatchIdAsync(int batchId);
+    }
 
 public class ExamService : IExamService
 {
@@ -400,4 +407,205 @@ public class ExamService : IExamService
 
         return attempt == null ? null : _mapper.Map<ExamResultDto>(attempt);
     }
-}
+
+        public async Task<List<ExamResultDto>> GetAllResultsAsync()
+        {
+            var attempts = await _context.ExamAttempts
+                .Include(a => a.Exam)
+                .Where(a => a.IsCompleted)
+                .OrderByDescending(a => a.SubmittedAt)
+                .ToListAsync();
+
+            return attempts.Select(_mapper.Map<ExamResultDto>).ToList();
+        }
+
+        public async Task<List<BatchExamResultDto>> GetBatchResultsAsync(int batchId)
+        {
+            var results = await _context.ExamAttempts
+                .Include(a => a.Exam)
+                .Where(a => a.IsCompleted)
+                .OrderByDescending(a => a.SubmittedAt)
+                .ToListAsync();
+
+            return results.Select(a => new BatchExamResultDto
+            {
+                AttemptId = a.Id,
+                ExamId = a.ExamId,
+                ExamTitle = a.Exam?.Title ?? string.Empty,
+                StudentId = a.StudentId,
+                StudentName = a.StudentId,
+                NameWithInitials = string.Empty,
+                MISNo = string.Empty,
+                Score = a.Score,
+                TotalMarks = a.TotalMarks,
+                Percentage = a.TotalMarks > 0 ? (double)a.Score / a.TotalMarks * 100 : 0,
+                Status = a.Status,
+                StartedAt = a.StartedAt,
+                SubmittedAt = a.SubmittedAt
+            }).ToList();
+        }
+
+        public async Task<List<BatchExamResultDto>> GetBatchResultsByExamAsync(int batchId, int examId)
+        {
+            var results = await _context.ExamAttempts
+                .Include(a => a.Exam)
+                .Where(a => a.ExamId == examId && a.IsCompleted)
+                .OrderByDescending(a => a.SubmittedAt)
+                .ToListAsync();
+
+            return results.Select(a => new BatchExamResultDto
+            {
+                AttemptId = a.Id,
+                ExamId = a.ExamId,
+                ExamTitle = a.Exam?.Title ?? string.Empty,
+                StudentId = a.StudentId,
+                StudentName = a.StudentId,
+                NameWithInitials = string.Empty,
+                MISNo = string.Empty,
+                Score = a.Score,
+                TotalMarks = a.TotalMarks,
+                Percentage = a.TotalMarks > 0 ? (double)a.Score / a.TotalMarks * 100 : 0,
+                Status = a.Status,
+                StartedAt = a.StartedAt,
+                SubmittedAt = a.SubmittedAt
+            }).ToList();
+        }
+
+        public async Task<List<BatchExamSummaryDto>> GetBatchSummariesAsync(int examId)
+        {
+            var results = await _context.ExamAttempts
+                .Include(a => a.Exam)
+                .Where(a => a.ExamId == examId && a.IsCompleted)
+                .OrderByDescending(a => a.SubmittedAt)
+                .ToListAsync();
+
+            var batchResults = results.Select(a => new BatchExamResultDto
+            {
+                AttemptId = a.Id,
+                ExamId = a.ExamId,
+                ExamTitle = a.Exam?.Title ?? string.Empty,
+                StudentId = a.StudentId,
+                StudentName = a.StudentId,
+                NameWithInitials = string.Empty,
+                MISNo = string.Empty,
+                Score = a.Score,
+                TotalMarks = a.TotalMarks,
+                Percentage = a.TotalMarks > 0 ? (double)a.Score / a.TotalMarks * 100 : 0,
+                Status = a.Status,
+                StartedAt = a.StartedAt,
+                SubmittedAt = a.SubmittedAt
+            }).ToList();
+
+            var attemptedStudents = batchResults.Select(r => r.StudentId).Distinct().Count();
+            var percentages = batchResults.Select(r => r.Percentage).ToList();
+
+            return new List<BatchExamSummaryDto>
+            {
+                new BatchExamSummaryDto
+                {
+                    BatchId = 0,
+                    BatchCode = "All",
+                    CourseName = "All Batches",
+                    TotalStudents = attemptedStudents,
+                    StudentsAttempted = attemptedStudents,
+                    TotalAttempts = batchResults.Count,
+                    AveragePercentage = percentages.Any() ? percentages.Average() : 0,
+                    HighestPercentage = percentages.Any() ? percentages.Max() : 0,
+                    LowestPercentage = percentages.Any() ? percentages.Min() : 0,
+                    Results = batchResults
+                }
+            };
+        }
+
+        public async Task<List<ExamBatchStatsDto>> GetExamBatchStatsAsync()
+        {
+            var exams = await _context.Exams
+                .Include(e => e.ExamQuestions)
+                    .ThenInclude(eq => eq.Question)
+                .ToListAsync();
+
+            var stats = new List<ExamBatchStatsDto>();
+
+            foreach (var exam in exams)
+            {
+                var results = await _context.ExamAttempts
+                    .Include(a => a.Exam)
+                    .Where(a => a.ExamId == exam.Id && a.IsCompleted)
+                    .ToListAsync();
+
+                var percentages = results.Select(r => r.TotalMarks > 0 ? (double)r.Score / r.TotalMarks * 100 : 0).ToList();
+                var studentIds = results.Select(r => r.StudentId).Distinct().ToList();
+
+                stats.Add(new ExamBatchStatsDto
+                {
+                    ExamId = exam.Id,
+                    ExamTitle = exam.Title,
+                    TotalMarks = exam.ExamQuestions.Sum(eq => eq.Question?.Marks ?? 0),
+                    TotalAttempts = results.Count,
+                    TotalStudents = studentIds.Count,
+                    StudentsAttempted = studentIds.Count,
+                    AveragePercentage = percentages.Any() ? percentages.Average() : 0,
+                    HighestPercentage = percentages.Any() ? percentages.Max() : 0,
+                    LowestPercentage = percentages.Any() ? percentages.Min() : 0,
+                    BatchSummaries = new List<BatchExamSummaryDto>
+                    {
+                        new BatchExamSummaryDto
+                        {
+                            BatchId = 0,
+                            BatchCode = "All",
+                            CourseName = "All",
+                            TotalStudents = studentIds.Count,
+                            StudentsAttempted = studentIds.Count,
+                            TotalAttempts = results.Count,
+                            AveragePercentage = percentages.Any() ? percentages.Average() : 0,
+                            HighestPercentage = percentages.Any() ? percentages.Max() : 0,
+                            LowestPercentage = percentages.Any() ? percentages.Min() : 0,
+                            Results = results.Select(r => new BatchExamResultDto
+                            {
+                                AttemptId = r.Id,
+                                ExamId = r.ExamId,
+                                ExamTitle = r.Exam?.Title ?? string.Empty,
+                                StudentId = r.StudentId,
+                                StudentName = r.StudentId,
+                                NameWithInitials = string.Empty,
+                                MISNo = string.Empty,
+                                Score = r.Score,
+                                TotalMarks = r.TotalMarks,
+                                Percentage = r.TotalMarks > 0 ? (double)r.Score / r.TotalMarks * 100 : 0,
+                                Status = r.Status,
+                                StartedAt = r.StartedAt,
+                                SubmittedAt = r.SubmittedAt
+                            }).ToList()
+                        }
+                    }
+                });
+            }
+
+            return stats;
+        }
+
+        public async Task<List<ExamResultDto>> GetStudentResultsByStudentIdAsync(string studentId)
+        {
+            var attempts = await _context.ExamAttempts
+                .Include(a => a.Exam)
+                .Where(a => a.StudentId == studentId && a.IsCompleted)
+                .OrderByDescending(a => a.SubmittedAt)
+                .ToListAsync();
+
+            return attempts.Select(_mapper.Map<ExamResultDto>).ToList();
+        }
+
+        public async Task<List<ExamResultDto>> GetStudentResultsByBatchIdAsync(int batchId)
+        {
+            // StudentId in ExamAttempts is the Identity user ID (string), not Student.StudentId (int)
+            // Return all results - frontend can filter by batch if needed
+            var allResults = await _context.ExamAttempts
+                .Include(a => a.Exam)
+                .Where(a => a.IsCompleted)
+                .OrderByDescending(a => a.SubmittedAt)
+                .ToListAsync();
+
+            return allResults.Select(_mapper.Map<ExamResultDto>).ToList();
+        }
+    }
+

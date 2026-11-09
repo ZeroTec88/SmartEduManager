@@ -87,6 +87,8 @@ export interface ApiQuestionDto {
   CreatedAt?: string;
   updatedAt?: string;
   UpdatedAt?: string;
+  imageUrl?: string;
+  ImageUrl?: string;
 }
 
 export interface ApiExamQuestionDto {
@@ -231,6 +233,7 @@ export interface ExamQuestionItem {
   correctAnswer?: string;
   explanation?: string;
   tags: string[];
+  imageUrl?: string;
 }
 
 export interface ExamQuestion {

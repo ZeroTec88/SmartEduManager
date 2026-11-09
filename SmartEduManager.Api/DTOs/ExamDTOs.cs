@@ -138,3 +138,62 @@ public class ExamAnswerResultDto
     public int MarksObtained { get; set; }
     public int TotalMarks { get; set; }
 }
+
+public class StudentExamSummaryDto
+{
+    public string StudentId { get; set; } = string.Empty;
+    public string StudentName { get; set; } = string.Empty;
+    public string NameWithInitials { get; set; } = string.Empty;
+    public string MISNo { get; set; } = string.Empty;
+    public string NICNo { get; set; } = string.Empty;
+    public int TotalAttempts { get; set; }
+    public int BestScore { get; set; }
+    public double BestPercentage { get; set; }
+    public double AveragePercentage { get; set; }
+    public List<ExamResultDto> Attempts { get; set; } = new();
+}
+
+public class BatchExamResultDto
+{
+    public int AttemptId { get; set; }
+    public int ExamId { get; set; }
+    public string ExamTitle { get; set; } = string.Empty;
+    public string StudentId { get; set; } = string.Empty;
+    public string StudentName { get; set; } = string.Empty;
+    public string NameWithInitials { get; set; } = string.Empty;
+    public string MISNo { get; set; } = string.Empty;
+    public int Score { get; set; }
+    public int TotalMarks { get; set; }
+    public double Percentage { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public DateTime StartedAt { get; set; }
+    public DateTime? SubmittedAt { get; set; }
+}
+
+public class BatchExamSummaryDto
+{
+    public int BatchId { get; set; }
+    public string BatchCode { get; set; } = string.Empty;
+    public string CourseName { get; set; } = string.Empty;
+    public int TotalStudents { get; set; }
+    public int StudentsAttempted { get; set; }
+    public int TotalAttempts { get; set; }
+    public double AveragePercentage { get; set; }
+    public double HighestPercentage { get; set; }
+    public double LowestPercentage { get; set; }
+    public List<BatchExamResultDto> Results { get; set; } = new();
+}
+
+public class ExamBatchStatsDto
+{
+    public int ExamId { get; set; }
+    public string ExamTitle { get; set; } = string.Empty;
+    public int TotalMarks { get; set; }
+    public int TotalAttempts { get; set; }
+    public int TotalStudents { get; set; }
+    public int StudentsAttempted { get; set; }
+    public double AveragePercentage { get; set; }
+    public double HighestPercentage { get; set; }
+    public double LowestPercentage { get; set; }
+    public List<BatchExamSummaryDto> BatchSummaries { get; set; } = new();
+}

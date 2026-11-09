@@ -57,3 +57,4 @@ smartedu-manager-flask-web/__pycache__/
 # System Files
 .DS_Store
 Thumbs.db
+publish/*

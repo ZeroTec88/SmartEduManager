@@ -134,7 +134,8 @@ export class ExamService {
       options: question.options ?? question.Options ?? [],
       correctAnswer: question.correctAnswer ?? question.CorrectAnswer ?? undefined,
       explanation: question.explanation ?? question.Explanation ?? undefined,
-      tags: question.tags ?? question.Tags ?? []
+      tags: question.tags ?? question.Tags ?? [],
+      imageUrl: question.imageUrl ?? question.ImageUrl ?? undefined
     };
   }
 

@@ -552,7 +552,7 @@ export class ExamQuestionBuilderComponent implements OnInit {
     }
     const baseUrl = this.API_URL.replace(/\/api$/, '').replace(/\/+$/, '');
     const cleanPath = question.imageUrl.replace(/^\/+/, '');
-    return `${baseUrl}/uploads/questions/${cleanPath}`;
+    return `${baseUrl}/${cleanPath}`;
   }
 
   onImageError(event: Event): void {

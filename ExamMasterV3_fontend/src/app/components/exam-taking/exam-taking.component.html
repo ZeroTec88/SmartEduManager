@@ -45,6 +45,12 @@
 
               <h2>{{ item.content }}</h2>
 
+              @if (getQuestionImageUrl(item.imageUrl); as imageUrl) {
+                <div class="question-image-wrap">
+                  <img [src]="imageUrl" alt="Question image" (error)="onImageError($event)" />
+                </div>
+              }
+
               @if (isOptionQuestion(item.type)) {
                 <div class="options-grid">
                   @for (option of item.options; track option; let i = $index) {

@@ -1,0 +1,136 @@
+<div class="exam-results-page">
+  <div class="page-header">
+    <h1>Exam Results Analysis</h1>
+    <p>View exam results batch-wise and for individual students</p>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label>Batch</label>
+      <select [(ngModel)]="selectedBatchId" (change)="onBatchChange($any($event.target).value)">
+        <option [value]="null">Select a batch</option>
+        <option *ngFor="let batch of batches()" [value]="batch.batchId">{{ batch.batchCode }} - {{ batch.courseName }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Exam</label>
+      <select [(ngModel)]="selectedExamId" (change)="onExamChange($any($event.target).value)" [disabled]="!selectedBatchId()">
+        <option [value]="null">Select an exam</option>
+        <option *ngFor="let exam of exams()" [value]="exam.examId">{{ exam.examTitle }}</option>
+      </select>
+    </div>
+    <button class="btn-export" (click)="exportResults()">Export</button>
+  </div>
+
+  <div *ngIf="!showStudentDetail()" class="batch-summary-section">
+    <div *ngFor="let summary of batchSummaries()" class="summary-card">
+      <h3>{{ summary.batchCode }} - {{ summary.courseName }}</h3>
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-value">{{ summary.totalStudents }}</div>
+          <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ summary.studentsAttempted }}</div>
+          <div class="stat-label">Students Attempted</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ summary.totalAttempts }}</div>
+          <div class="stat-label">Total Attempts</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ summary.averagePercentage | number:"1.1-1" }}%</div>
+          <div class="stat-label">Average Score</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ summary.highestPercentage | number:"1.1-1" }}%</div>
+          <div class="stat-label">Highest Score</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">{{ summary.lowestPercentage | number:"1.1-1" }}%</div>
+          <div class="stat-label">Lowest Score</div>
+        </div>
+      </div>
+
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>MIS No</th>
+            <th>Score</th>
+            <th>Total Marks</th>
+            <th>Percentage</th>
+            <th>Status</th>
+            <th>Submitted At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let result of summary.results">
+            <td>{{ result.studentName }}</td>
+            <td>{{ result.misNo }}</td>
+            <td>{{ result.score }}</td>
+            <td>{{ result.totalMarks }}</td>
+            <td><span [style.color]="gradeColor(result.percentage)">{{ result.percentage | number:"1.1-1" }}%</span></td>
+            <td><span class="badge {{ getStatusBadgeClass(result.status) }}">{{ result.status }}</span></td>
+            <td>{{ formatDate(result.submittedAt) }}</td>
+            <td>
+              <button class="btn-view" (click)="viewStudentResults(result.studentId, result.studentName)">View Details</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="showStudentDetail()" class="student-detail-section">
+    <div class="detail-header">
+      <button class="btn-back" (click)="backToBatchView()">&larr; Back to Batch View</button>
+      <h2>Results for {{ selectedStudentName() }}</h2>
+    </div>
+
+    <div *ngIf="selectedStudentResults().length > 0" class="student-stats">
+      <div class="stat">
+        <div class="stat-value">{{ selectedStudentResults().length }}</div>
+        <div class="stat-label">Total Attempts</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ studentAvgPercentage() | number:'1.1-1' }}%</div>
+        <div class="stat-label">Average Score</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">{{ studentMaxPercentage() | number:'1.1-1' }}%</div>
+        <div class="stat-label">Best Score</div>
+      </div>
+    </div>
+
+    <table class="attempts-table">
+      <thead>
+        <tr>
+          <th>Exam</th>
+          <th>Score</th>
+          <th>Total Marks</th>
+          <th>Percentage</th>
+          <th>Status</th>
+          <th>Started At</th>
+          <th>Submitted At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let result of selectedStudentResults()">
+          <td>{{ result.examTitle }}</td>
+          <td>{{ result.score }}</td>
+          <td>{{ result.totalMarks }}</td>
+          <td><span [style.color]="gradeColor(result.percentage)">{{ result.percentage | number:"1.1-1" }}%</span></td>
+          <td><span class="badge {{ getStatusBadgeClass(result.status) }}">{{ result.status }}</span></td>
+          <td>{{ formatDate(result.startedAt) }}</td>
+          <td>{{ formatDate(result.submittedAt) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="selectedStudentResults().length === 0" class="empty-state">
+      <p>No exam attempts found for this student.</p>
+    </div>
+  </div>
+</div>

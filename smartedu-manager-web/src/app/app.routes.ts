@@ -99,6 +99,11 @@ export const routes: Routes = [
         data: { breadcrumb: 'Exam Question Builder' }
       },
       {
+        path: 'exam-results',
+        loadComponent: () => import('./components/exam-results/exam-results.component').then(m => m.ExamResultsComponent),
+        data: { breadcrumb: 'Exam Results' }
+      },
+      {
         path: 'timetable',
         loadComponent: () => import('./components/timetable/timetable.component').then(m => m.TimetableComponent),
         data: { breadcrumb: 'Timetable' }
@@ -125,6 +130,11 @@ export const routes: Routes = [
         path: 'exam-question-builder',
         loadComponent: () => import('./components/exam-question-builder/exam-question-builder.component').then(m => m.ExamQuestionBuilderComponent),
         data: { breadcrumb: 'Exam Question Builder' }
+      },
+      {
+        path: 'exam-results',
+        loadComponent: () => import('./components/exam-results/exam-results.component').then(m => m.ExamResultsComponent),
+        data: { breadcrumb: 'Exam Results' }
       },
       {
         path: 'batches',
@@ -218,3 +228,4 @@ export const routes: Routes = [
     redirectTo: 'login'
   }
 ];
+

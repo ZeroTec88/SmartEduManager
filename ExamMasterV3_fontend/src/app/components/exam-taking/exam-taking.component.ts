@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ExamAnswerSubmission, ExamQuestion, ExamAttempt } from '../../models/exam.models';
 import { ExamService } from '../../services/exam.service';
 import { ToastService } from '../../services/toast.service';
+import { environment } from '../../../environments/environment';
 
 const AUTOSAVE_KEY = 'exam-master-autosave';
 
@@ -396,6 +397,28 @@ export class ExamTakingComponent implements OnInit, OnDestroy {
 
   isOptionQuestion(type: string): boolean {
     return ['multiple-choice', 'dropdown'].includes(type);
+  }
+
+  getQuestionImageUrl(imageUrl: string | undefined): string {
+    if (!imageUrl) {
+      return '';
+    }
+
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+
+    const normalized = imageUrl.replace(/\\/g, '/').replace(/^\/+/g, '');
+    if (normalized.startsWith('uploads/')) {
+      return `${environment.apiUrl.replace(/\/api$/, '')}/${normalized}`;
+    }
+
+    return `${environment.apiUrl.replace(/\/api$/, '')}/uploads/${normalized}`;
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
   }
 
   confirmExit(): void {

@@ -72,6 +72,14 @@ template: `
                   <i class="fas fa-chalkboard-teacher"></i>
                   @if (!sidebarCollapsed()) {
                     <span>Instructors</span>
+              <li class="nav-item">
+                <a routerLink="/admin/exam-results" routerLinkActive="active" class="nav-link">
+                  <i class="fas fa-chart-bar"></i>
+                  @if (!sidebarCollapsed()) {
+                    <span>Exam Results</span>
+                  }
+                </a>
+              </li>
                   }
                 </a>
               </li>
@@ -86,6 +94,14 @@ template: `
                   <i class="fas fa-user-cog"></i>
                   @if (!sidebarCollapsed()) {
                     <span>User Manager</span>
+                  }
+                </a>
+              </li>
+              <li class="nav-item">
+                <a routerLink="/admin/exam-results" routerLinkActive="active" class="nav-link">
+                  <i class="fas fa-chart-bar"></i>
+                  @if (!sidebarCollapsed()) {
+                    <span>Exam Results</span>
                   }
                 </a>
               </li>
@@ -179,6 +195,14 @@ template: `
                   <i class="fas fa-clipboard-check"></i>
                   @if (!sidebarCollapsed()) {
                     <span>Exam Builder</span>
+                  }
+                </a>
+              </li>
+              <li class="nav-item">
+                <a routerLink="/instructor/exam-results" routerLinkActive="active" class="nav-link">
+                  <i class="fas fa-chart-bar"></i>
+                  @if (!sidebarCollapsed()) {
+                    <span>Exam Results</span>
                   }
                 </a>
               </li>
